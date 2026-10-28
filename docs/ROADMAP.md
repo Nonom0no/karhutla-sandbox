@@ -60,7 +60,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: respons 40.000 byte mentah, nilai = round(fuel×255); `REGION_NOT_FOUND` 404; tepi dan sungai bernilai 0; contract test diperbarui.
   - Uji: `pytest -q && ruff check .`.
 
-- [ ] **FIX-01 — Perbaikan konsistensi (frontend)**
+- [x] **FIX-01 — Perbaikan konsistensi (frontend)**
   - Tujuan: `App.tsx` memakai `getRegions()` dari `api/client.ts` (bukan `fetch` langsung); base URL default `http://localhost:8000` hanya di satu tempat; docs memakai prefix `/api`.
   - File: `frontend/src/App.tsx`, `frontend/src/api/client.ts`, `docs/API_SPEC.md`, `docs/ARCHITECTURE.md`.
   - Acceptance: tidak ada `fetch(` di luar `api/client.ts`; semua path docs = path kode.

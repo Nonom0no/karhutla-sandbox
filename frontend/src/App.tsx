@@ -4,16 +4,15 @@ import { ControlPanel } from "./components/ControlPanel";
 import { MapView } from "./components/MapView";
 import { TimeControls } from "./components/TimeControls";
 import { StatsPanel } from "./components/StatsPanel";
+import { getRegions } from "./api/client";
 
 function App() {
   const state = useAppState();
   const dispatch = useAppDispatch();
 
-  // fetch regions on mount
+  // fetch regions on mount using API client
   useEffect(() => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-    fetch(baseUrl + "/api/regions")
-      .then((res) => res.json())
+    getRegions()
       .then((data) => {
         dispatch({ type: "SET_REGIONS", payload: data.regions });
       })

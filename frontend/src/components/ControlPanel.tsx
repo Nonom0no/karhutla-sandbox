@@ -1,7 +1,7 @@
 // src/components/ControlPanel.tsx - Region selection, parameter controls, simulation triggers
 
-import React, { useEffect } from "react";
-import { getRegions, simulate } from "../api/client";
+import React from "react";
+import { simulate } from "../api/client";
 import { decodeIgnitionTime } from "../lib/decode";
 import { useAppDispatch, useAppState } from "../state/context";
 import type { SimulationParams } from "../state/types";
@@ -10,32 +10,6 @@ import { Slider } from "./Slider";
 export const ControlPanel: React.FC = () => {
   const state = useAppState();
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    let active = true;
-    if (state.regions.length === 0) {
-      getRegions()
-        .then((data) => {
-          if (active) {
-            dispatch({ type: "SET_REGIONS", payload: data.regions });
-          }
-        })
-        .catch((err) => {
-          if (active) {
-            dispatch({
-              type: "SET_ERROR",
-              payload: {
-                code: "NETWORK_ERROR",
-                message: err instanceof Error ? err.message : "Gagal memuat region",
-              },
-            });
-          }
-        });
-    }
-    return () => {
-      active = false;
-    };
-  }, [dispatch, state.regions.length]);
 
   const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch({ type: "SET_REGION_ID", payload: e.target.value });
