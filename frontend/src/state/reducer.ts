@@ -27,7 +27,7 @@ export const initialState: AppState = {
 export function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case "SET_REGIONS": {
-      const regions = action.payload;
+      const regions = action.payload || [];
       if (regions.length === 0) {
         return { ...state, regions: [] };
       }
