@@ -6,8 +6,7 @@ Field names use snake_case to match API_SPEC exactly.
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-
+from pydantic import BaseModel, ConfigDict, Field
 
 # --- Request schemas ---
 
@@ -157,11 +156,25 @@ ErrorEnvelope.model_rebuild()
 ErrorBody.model_rebuild()
 
 
+class FuelData(BaseModel):
+    """Fuel grid data for GET /regions/{id}/fuel."""
+
+    region_id: str
+    height: int
+    width: int
+    encoding: Literal["base64-uint8"] = "base64-uint8"
+    dtype: Literal["uint8"] = "uint8"
+    order: Literal["row-major"] = "row-major"
+    scale: int = 255
+    data: str
+
+
 __all__ = [
     "DerivedParams",
     "ErrorBody",
     "ErrorDetail",
     "ErrorEnvelope",
+    "FuelData",
     "GridInfo",
     "IgnitionPoint",
     "IgnitionTimeData",
@@ -170,6 +183,6 @@ __all__ = [
     "RegionsResponse",
     "SimulateRequest",
     "SimulateResponse",
-    "Stats",
     "SimulationParams",
+    "Stats",
 ]

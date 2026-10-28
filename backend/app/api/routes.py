@@ -1,24 +1,25 @@
 """API routes for simulation endpoints."""
 
-from datetime import datetime, timezone
+import base64
+import uuid
+from datetime import UTC, datetime
 from math import floor
 from typing import Any
-import uuid
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+import numpy as np
+from fastapi import APIRouter, Depends
 from numpy.random import Generator, default_rng
 
 from app.api.errors import (
-    ErrorCode,
     IgnitionOnNonFuelError,
     IgnitionOutOfBoundsError,
     InternalError,
     SimulationNotFoundError,
     UnknownRegionError,
-    ValidationError,
 )
 from app.api.schemas import (
     DerivedParams,
+    FuelData,
     GridInfo,
     IgnitionPoint,
     IgnitionTimeData,
@@ -32,7 +33,6 @@ from app.api.schemas import (
 from app.sim.ca import run_simulation
 from app.sim.encoding import encode_ignition_time
 from app.sim.params import (
-    CELL_SIZE_M,
     GRID_HEIGHT,
     GRID_WIDTH,
     K_WIND,
@@ -121,6 +121,36 @@ def get_regions() -> RegionsResponse:
     return RegionsResponse(regions=regions)
 
 
+@router.get("/regions/{region_id}/fuel", response_model=FuelData)
+def get_region_fuel(region_id: str) -> FuelData:
+    """Get raw fuel grid for a region.
+    Returns uint8 values = round(fuel * 255), base64‑encoded.
+    """
+    # Validate region exists
+    try:
+        _ = get_region(region_id)
+    except KeyError as e:
+        raise UnknownRegionError(region_id) from e
+
+    # Load fuel grid (float32, 0‑1)
+    fuel_grid = load_fuel_grid(region_id)
+
+    # Convert to uint8 (rounded)
+    fuel_uint8 = np.rint(fuel_grid * 255).astype(np.uint8)
+    # Ensure correct shape
+    if fuel_uint8.shape != (200, 200):
+        raise InternalError(f"Unexpected fuel grid shape {fuel_uint8.shape}")
+    # Encode raw bytes to base64
+    b64_data = base64.b64encode(fuel_uint8.tobytes()).decode("ascii")
+
+    return FuelData(
+        region_id=region_id,
+        height=200,
+        width=200,
+        data=b64_data,
+    )
+
+
 @router.post("/simulate", response_model=SimulateResponse)
 def run_simulation_endpoint(
     request: SimulateRequest,
@@ -200,8 +230,8 @@ def run_simulation_endpoint(
 
     # Generate simulation ID and timestamps
     sim_id = uuid.uuid4().hex  # 32-char hex string
-    created_at = datetime.now(timezone.utc)
-    expires_at = datetime.fromtimestamp(created_at.timestamp() + 1800, tz=timezone.utc)  # 1800s TTL
+    created_at = datetime.now(UTC)
+    expires_at = datetime.fromtimestamp(created_at.timestamp() + 1800, tz=UTC)  # 1800s TTL
 
     # Encode ignition_time
     ignition_time_b64 = encode_ignition_time(ignition_time)

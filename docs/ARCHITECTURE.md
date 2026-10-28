@@ -2,10 +2,11 @@
 
 ## 1. Alur data (teks)
 ```
-[Browser: React + Leaflet]
-   │ 1. GET /regions                      → daftar preset, bbox, default_params
-   │ 2. user: pilih region, klik titik api (lat/lon), atur slider & kompas
-   │ 3. POST /simulate  (JSON request)
+[Browser]
+   │ GET /api/regions → GET /api/regions/{id}/fuel (uint8, statis per region)
+   │ POST /api/simulate → decode ignition_time → Int16Array + bucket per langkah
+   │ slider t → perubahan state sel (incremental) → update InstancedMesh (vegetasi, api)
+   │ three.js / react-three-fiber, flat-shaded low-poly, klik tanah → raycast → sel → lat/lon
    ▼
 [FastAPI: app/api/routes.py]
    │ validasi (Pydantic v2) → konversi lat/lon → (row, col) memakai bbox region
@@ -69,11 +70,13 @@ karhutla-sandbox/
 └── frontend/
     ├── package.json  vite.config.ts  tsconfig.json  index.html  .env.example
     └── src/
-        ├── main.tsx  App.tsx  styles.css
+        ├── main.tsx  App.tsx  index.css
         ├── api/{client.ts, types.ts}
-        ├── lib/{decode.ts, render.ts, geo.ts, angle.ts}
+        ├── scene/{SceneView.tsx, Ground.tsx, Vegetation.tsx, FireLayer.tsx,
+        │          IgnitionMarkers.tsx, WindFx.tsx, theme.ts}
+        ├── lib/{decode.ts, geo.ts, angle.ts, world.ts, fuel.ts, cells.ts, text.ts}
         ├── state/{reducer.ts, context.tsx}
-        └── components/{MapView.tsx, Compass.tsx, ControlPanel.tsx,
+        └── components/{Compass.tsx, ControlPanel.tsx, Slider.tsx,
                         TimeControls.tsx, StatsPanel.tsx, LimitationsBanner.tsx}
 ```
 
@@ -86,7 +89,8 @@ karhutla-sandbox/
 | A4 | Hasil in-memory + TTL | MVP tanpa DB, 1 pengguna/demo; kehilangan data saat restart dapat diterima |
 | A5 | `POST /simulate` sinkron | Simulasi < 2 s; menghindari antrean/worker |
 | A6 | Fuel grid `.npy` di repo | Demo tanpa jaringan ke API data; deterministik; LANDFIRE tidak mencakup Indonesia |
-| A7 | Plain Leaflet + `imageOverlay` | Grid raster kecil; `pixelated` menjaga sel tajam; tanpa dependensi tambahan |
+| A7 | three + react-three-fiber, InstancedMesh | 40.000 sel dengan draw call minimal; gaya diorama mainan; tanpa tile/peta nyata (preset sintetis) |
 | A8 | Kompas SVG buatan sendiri | Tanpa library; kontrol penuh konvensi sudut |
 | A9 | `seed` dipantulkan di respons | Reproduksibilitas untuk pengajaran dan pengujian |
 | A10 | Konversi lat/lon → sel di server | Satu sumber kebenaran untuk bbox dan validasi |
+| A11 | Endpoint fuel terpisah | `ignition_time` tetap satu array; fuel statis per region, kecil (40 KB), dapat di-cache |

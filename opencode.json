@@ -4,10 +4,21 @@
     "*": "ask",
     "bash": {
       "*": "ask",
-      "git *": "allow",
-      "npm *": "allow",
-      "rm *": "deny",
-      "grep *": "allow"
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git show*": "allow",
+      "git add*": "allow",
+      "git commit*": "ask",
+      "git push*": "deny",
+      "npm run *": "allow",
+      "npm ci": "allow",
+      "npm install*": "ask",
+      "pip install*": "ask",
+      "pytest*": "allow",
+      "ruff *": "allow",
+      "grep *": "allow",
+      "rm *": "deny"
     },
     "edit": "allow"
   }

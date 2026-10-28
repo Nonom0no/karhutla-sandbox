@@ -3,19 +3,22 @@
 Base URL dev: `http://localhost:8000`. Format: JSON (UTF-8). Tanpa autentikasi. Dokumen OpenAPI otomatis FastAPI (`/docs`) tidak menggantikan dokumen ini; dokumen ini kontrak resmi.
 
 ## 1. Endpoint ringkas
+Semua endpoint berada di bawah prefix `/api`.
+
 | Method | Path | Fungsi | Sukses |
 |--------|------|--------|--------|
-| GET | `/health` | status layanan | 200 |
-| GET | `/regions` | daftar preset wilayah | 200 |
-| POST | `/simulate` | jalankan simulasi (sinkron) | 200 |
-| GET | `/simulation/{id}` | ambil hasil tersimpan | 200 |
+| GET | `/api/health` | status layanan | 200 |
+| GET | `/api/regions` | daftar preset wilayah | 200 |
+| GET | `/api/regions/{id}/fuel` | grid fuel region | 200 |
+| POST | `/api/simulate` | jalankan simulasi (sinkron) | 200 |
+| GET | `/api/simulation/{id}` | ambil hasil tersimpan | 200 |
 
-## 2. `GET /health`
+## 2. `GET /api/health`
 ```json
 { "status": "ok", "version": "0.1.0" }
 ```
 
-## 3. `GET /regions`
+## 3. `GET /api/regions`
 ```json
 {
   "regions": [
@@ -34,7 +37,21 @@ Base URL dev: `http://localhost:8000`. Format: JSON (UTF-8). Tanpa autentikasi. 
 ```
 `bbox` = `[west, south, east, north]` (derajat, WGS84). Id yang valid: `tropical_rainforest`, `dry_forest`, `grassland`.
 
-## 4. `POST /simulate`
+## 3b. `GET /api/regions/{id}/fuel`
+Mengembalikan grid fuel mentah (tanpa pengali kelembapan) untuk visualisasi.
+```json
+{
+  "region_id": "dry_forest",
+  "height": 200, "width": 200,
+  "encoding": "base64-uint8", "dtype": "uint8", "order": "row-major",
+  "scale": 255,
+  "data": "...(40.000 byte mentah, base64)"
+}
+```
+Nilai sel = `round(fuel × 255)`; fuel float = nilai / `scale`. `0` = tidak bisa terbakar (air/tepi).
+Error: `404 REGION_NOT_FOUND` jika id tidak dikenal. Respons boleh di-cache (`Cache-Control: public, max-age=3600`).
+
+## 4. `POST /api/simulate`
 ### Request
 ```json
 {
@@ -95,7 +112,7 @@ Field tak dikenal ditolak (`extra="forbid"`).
 - `steps` = nilai yang diminta; `steps_run` = yang benar-benar dijalankan.
 - Ukuran tipikal: `H·W·2` = 80.000 byte mentah ≈ 106,7 KB base64.
 
-## 5. `GET /simulation/{id}`
+## 5. `GET /api/simulation/{id}`
 Mengembalikan body identik dengan respons `POST /simulate`. `404 SIMULATION_NOT_FOUND` jika id tak ada atau sudah kedaluwarsa.
 
 ## 6. Validasi, batas, kode error
@@ -111,6 +128,7 @@ Envelope error seragam (semua error, termasuk validasi FastAPI/Pydantic yang har
 | 422 | `IGNITION_OUT_OF_BOUNDS` | titik di luar bbox region |
 | 422 | `IGNITION_ON_NON_FUEL` | titik jatuh pada sel `fuel_eff == 0` |
 | 404 | `SIMULATION_NOT_FOUND` | id tak ada/kedaluwarsa |
+| 404 | `REGION_NOT_FOUND` | id region di path tidak dikenal |
 | 500 | `INTERNAL_ERROR` | kesalahan tak terduga (pesan generik, tanpa stack trace) |
 Batas keras: `H·W ≤ 65.536`, `steps ≤ 500`, `ignition_points ≤ 5`. Tanpa rate-limit di MVP (VERIFIKASI jika di-deploy publik).
 

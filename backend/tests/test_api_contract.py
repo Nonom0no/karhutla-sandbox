@@ -4,11 +4,8 @@ This test ensures the response structure matches the documented contract.
 Run with: pytest -q tests/test_api_contract.py
 """
 
-import json
-from datetime import datetime, timezone
 from typing import Any
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
