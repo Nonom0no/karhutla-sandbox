@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { BBox, bboxToLatLngBounds, isInsideBbox } from '../lib/geo';
+import { FireOverlay } from './FireOverlay';
 
 interface IgnitionPoint {
   lat: number;
@@ -13,11 +14,15 @@ interface MapViewProps {
   ignitionPoints: IgnitionPoint[];
   onAddIgnitionPoint: (point: IgnitionPoint) => void;
   onRemoveIgnitionPoint: (point: IgnitionPoint) => void;
-  children?: React.ReactNode;
+  // Fire overlay data (optional)
+  ignition?: Int16Array | null;
+  t?: number;
+  gridWidth?: number;
+  gridHeight?: number;
 }
 
 /**
- * Leaflet map with OSM tiles, bbox rectangle, and ignition point markers.
+ * Leaflet map with OSM tiles, bbox rectangle, ignition point markers, and fire overlay.
  * Click inside bbox to add point (max 5 handled by parent), click marker to remove.
  */
 export function MapView({
@@ -25,7 +30,10 @@ export function MapView({
   ignitionPoints,
   onAddIgnitionPoint,
   onRemoveIgnitionPoint,
-  children,
+  ignition = null,
+  t = 0,
+  gridWidth = 0,
+  gridHeight = 0,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -137,7 +145,16 @@ export function MapView({
           {hint}
         </div>
       )}
-      {children}
+      {ignition && gridWidth > 0 && gridHeight > 0 && (
+        <FireOverlay
+          map={mapRef.current}
+          ignition={ignition}
+          t={t}
+          width={gridWidth}
+          height={gridHeight}
+          bbox={bbox}
+        />
+      )}
     </div>
   );
 }

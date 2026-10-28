@@ -1,16 +1,13 @@
 // src/components/ControlPanel.tsx - Region selection, parameter controls, simulation triggers
 
 import React, { useEffect } from "react";
-import { getRegions } from "../api/client";
+import { getRegions, simulate } from "../api/client";
+import { decodeIgnitionTime } from "../lib/decode";
 import { useAppDispatch, useAppState } from "../state/context";
 import type { SimulationParams } from "../state/types";
 import { Slider } from "./Slider";
 
-export interface ControlPanelProps {
-  onSimulate?: () => void;
-}
-
-export const ControlPanel: React.FC<ControlPanelProps> = ({ onSimulate }) => {
+export const ControlPanel: React.FC = () => {
   const state = useAppState();
   const dispatch = useAppDispatch();
 
@@ -59,9 +56,50 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onSimulate }) => {
     dispatch({ type: "RESET" });
   };
 
-  const handleSimulate = () => {
-    if (onSimulate) {
-      onSimulate();
+  const handleSimulate = async () => {
+    if (state.ignitionPoints.length === 0 || state.status === "loading") return;
+
+    const region = state.regions.find((r) => r.id === state.regionId);
+    if (!region) return;
+
+    dispatch({ type: "SET_STATUS", payload: "loading" });
+    dispatch({ type: "SET_ERROR", payload: null });
+
+    try {
+      const request = {
+        region_id: state.regionId,
+        ignition_points: state.ignitionPoints,
+        fire_intensity: state.params.fire_intensity,
+        wind_speed: state.params.wind_speed,
+        wind_from_deg: state.params.wind_from_deg,
+        fuel_moisture: state.params.fuel_moisture,
+        steps: state.params.steps,
+        seed: state.params.seed,
+      };
+
+      const response = await simulate(request);
+
+      // Decode ignition_time base64 to Int16Array
+      const ignition = decodeIgnitionTime(
+        response.ignition_time.data,
+        response.grid.height,
+        response.grid.width
+      );
+
+      dispatch({
+        type: "SET_RESULT",
+        payload: { result: response, ignition },
+      });
+    } catch (err) {
+      const error = err as Error & { code?: string; details?: unknown };
+      dispatch({
+        type: "SET_ERROR",
+        payload: {
+          code: error.code ?? "UNKNOWN_ERROR",
+          message: error.message ?? "Terjadi kesalahan tidak diketahui",
+        },
+      });
+      dispatch({ type: "SET_STATUS", payload: "error" });
     }
   };
 

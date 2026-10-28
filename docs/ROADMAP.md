@@ -92,7 +92,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: tombol "Jalankan" nonaktif tanpa titik; petunjuk di luar bbox.
   - Uji: vitest logika `isInsideBbox`; cek manual.
 
-- [ ] **P2-08 — Jalankan simulasi dan render overlay**
+- [x] **P2-08 — Jalankan simulasi dan render overlay**
   - Tujuan: `POST /simulate`, decode, `lib/render.ts`, `imageOverlay` dengan `pixelated`.
   - Acceptance: FRONTEND_SPEC §4 terpenuhi; titik awal tampil di `t=0`.
   - Uji: vitest `render.ts` (sel −1 transparan, `v>t` transparan, `t−v<3` warna api, selain itu abu); cek manual dengan backend jalan.
