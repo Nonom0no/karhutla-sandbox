@@ -46,7 +46,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: skema dan kode error persis API_SPEC; konversi lat/lon→sel; T-SIM-13; `test_api_contract.py` memeriksa kunci respons terhadap contoh di API_SPEC.
   - Uji: `pytest -q` dan `ruff check .`.
 
-- [ ] **P1-08 — Profiling dan performa**
+- [x] **P1-08 — Profiling dan performa**
   - Tujuan: ukur `POST /simulate` default (dry_forest, steps=200); optimasi NumPy bila p95 > 2 s.
   - File: `backend/scripts/bench.py` (baru), `backend/app/sim/ca.py` (jika perlu).
   - Acceptance: p95 < 2 s dan respons < 200 KB (KS-01, KS-02); Numba hanya jika optimasi NumPy tidak cukup dan **setelah izin pengguna**; jika urutan rng berubah, perbarui tes dan SIMULATION_SPEC §3.
