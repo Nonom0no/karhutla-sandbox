@@ -82,7 +82,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: rentang, langkah, dan default = API_SPEC §4; label Indonesia dengan satuan.
   - Uji: vitest render + perubahan nilai; `npm run lint`.
 
-- [ ] **P2-06 — Kompas SVG**
+- [x] **P2-06 — Kompas SVG**
   - Tujuan: `Compass.tsx` + `lib/angle.ts` sesuai FRONTEND_SPEC §5.
   - Acceptance: drag mouse/sentuh; keyboard ±1°/±15°; 270° = handle di kiri, panah ke kanan.
   - Uji: vitest untuk `pointerToDeg` (0,90,180,270), `degToCompassLabel`, `normalizeDeg`.
