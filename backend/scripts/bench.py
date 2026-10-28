@@ -3,24 +3,23 @@ Runs multiple simulations, measures latency percentiles, and checks response siz
 """
 
 import time
-import base64
 from statistics import median
-from typing import List
 
 import numpy as np
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.sim.regions import get_region, load_fuel_grid
-from app.sim.params import intensity_to_p_base, dryness_multiplier
 from app.sim.ca import run_simulation
 from app.sim.encoding import encode_ignition_time
+from app.sim.params import dryness_multiplier, intensity_to_p_base
+from app.sim.regions import get_region, load_fuel_grid
 
 # Configuration
 RUNS = 50  # number of benchmark iterations
 REGION_ID = "dry_forest"
 
 client = TestClient(app)
+
 
 def get_default_payload():
     region = get_region(REGION_ID)
@@ -50,10 +49,11 @@ def get_default_payload():
     }
     return payload
 
+
 def benchmark_via_api():
     payload = get_default_payload()
-    latencies: List[float] = []
-    sizes: List[int] = []
+    latencies: list[float] = []
+    sizes: list[int] = []
     for _ in range(RUNS):
         start = time.perf_counter()
         resp = client.post("/api/simulate", json=payload)
@@ -65,6 +65,7 @@ def benchmark_via_api():
         sizes.append(len(b64.encode()))
     return latencies, sizes
 
+
 def benchmark_direct():
     region = get_region(REGION_ID)
     default = region["default_params"]
@@ -75,8 +76,8 @@ def benchmark_direct():
     p_base = intensity_to_p_base(default["fire_intensity"])
     dry_mult = dryness_multiplier(default["fuel_moisture"])
     fuel_eff = fuel_grid * dry_mult
-    latencies: List[float] = []
-    sizes: List[int] = []
+    latencies: list[float] = []
+    sizes: list[int] = []
     for _ in range(RUNS):
         rng = np.random.default_rng()  # random seed per run
         start = time.perf_counter()
@@ -96,6 +97,7 @@ def benchmark_direct():
         b64 = encode_ignition_time(ignition_time)
         sizes.append(len(b64.encode()))
     return latencies, sizes
+
 
 if __name__ == "__main__":
     # Choose direct benchmark (no FastAPI overhead) as primary metric

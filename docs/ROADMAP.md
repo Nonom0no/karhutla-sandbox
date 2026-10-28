@@ -52,6 +52,20 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: p95 < 2 s dan respons < 200 KB (KS-01, KS-02); Numba hanya jika optimasi NumPy tidak cukup dan **setelah izin pengguna**; jika urutan rng berubah, perbarui tes dan SIMULATION_SPEC §3.
   - Uji: `python scripts/bench.py` mencetak p50/p95; `pytest -q`.
 
+## Fase 1B — Tambahan backend (3D)
+
+- [ ] **P1-09 — Endpoint grid fuel**
+  - Tujuan: `GET /api/regions/{id}/fuel` sesuai API_SPEC §3b.
+  - File: `backend/app/api/{routes,schemas}.py`, `backend/app/sim/{regions,encoding}.py`, `backend/tests/{test_api,test_api_contract}.py`.
+  - Acceptance: respons 40.000 byte mentah, nilai = round(fuel×255); `REGION_NOT_FOUND` 404; tepi dan sungai bernilai 0; contract test diperbarui.
+  - Uji: `pytest -q && ruff check .`.
+
+- [ ] **FIX-01 — Perbaikan konsistensi (frontend)**
+  - Tujuan: `App.tsx` memakai `getRegions()` dari `api/client.ts` (bukan `fetch` langsung); base URL default `http://localhost:8000` hanya di satu tempat; docs memakai prefix `/api`.
+  - File: `frontend/src/App.tsx`, `frontend/src/api/client.ts`, `docs/API_SPEC.md`, `docs/ARCHITECTURE.md`.
+  - Acceptance: tidak ada `fetch(` di luar `api/client.ts`; semua path docs = path kode.
+  - Uji: `npm run typecheck && npm run lint && npm run test`.
+
 ## Fase 2 — Frontend inti (minggu 3–5)
 
 - [x] **P2-01 — Scaffold frontend**
@@ -65,7 +79,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: tipe sama dengan API_SPEC; decode base64→`Int16Array` memakai `DataView` little-endian; error envelope diparse.
   - Uji: vitest dengan vektor uji (nilai −1, 0, 500) dan fetch yang di-mock.
 
-- [x] **P2-03 — MapView dasar**
+- [x] **P2-03 — MapView dasar** (DIGANTIKAN oleh 3D-xx; kode Leaflet dihapus di 3D-01)
   - Tujuan: peta Leaflet dengan tile OSM + atribusi, `fitBounds` ke bbox region.
   - File: `src/components/MapView.tsx`, `src/lib/geo.ts`.
   - Acceptance: peta tampil, bbox terlihat sebagai batas persegi tipis, tanpa kebocoran instance peta saat unmount.
@@ -87,25 +101,64 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: drag mouse/sentuh; keyboard ±1°/±15°; 270° = handle di kiri, panah ke kanan.
   - Uji: vitest untuk `pointerToDeg` (0,90,180,270), `degToCompassLabel`, `normalizeDeg`.
 
-- [x] **P2-07 — Titik api via klik peta**
+- [x] **P2-07 — Titik api via klik peta** (DIGANTIKAN oleh 3D-xx; kode Leaflet dihapus di 3D-01)
   - Tujuan: tambah/hapus marker, maks 5, hanya di dalam bbox.
   - Acceptance: tombol "Jalankan" nonaktif tanpa titik; petunjuk di luar bbox.
   - Uji: vitest logika `isInsideBbox`; cek manual.
 
-- [x] **P2-08 — Jalankan simulasi dan render overlay**
+- [x] **P2-08 — Jalankan simulasi dan render overlay** (DIGANTIKAN oleh 3D-xx; kode Leaflet dihapus di 3D-01)
   - Tujuan: `POST /simulate`, decode, `lib/render.ts`, `imageOverlay` dengan `pixelated`.
   - Acceptance: FRONTEND_SPEC §4 terpenuhi; titik awal tampil di `t=0`.
   - Uji: vitest `render.ts` (sel −1 transparan, `v>t` transparan, `t−v<3` warna api, selain itu abu); cek manual dengan backend jalan.
 
+## Fase 2B — Visualisasi 3D (menggantikan P2-03, P2-07, P2-08)
+Agent: `@frontend-engineer`. Kerjakan berurutan.
+
+- [ ] **3D-01 — Scaffold scene dan hapus Leaflet**
+  - Tujuan: pasang `three`, `@react-three/fiber`, `@react-three/drei`, `@types/three` (minta izin); `SceneView` dengan kamera orbit, cahaya, latar, alas diorama; hapus Leaflet.
+  - File: `frontend/package.json`, `src/scene/{SceneView,Ground,theme}.tsx|ts`, `src/App.tsx`, `src/main.tsx`; hapus `MapView*`, `FireOverlay*`, `lib/render*`, CSS `.fire-overlay`, impor `leaflet/dist/leaflet.css`.
+  - Acceptance: tidak ada impor `leaflet` tersisa; scene tampil dan bisa diputar/zoom; tanpa WebGL → pesan fallback.
+  - Uji: `npm run typecheck && npm run lint && npm run test && npm run build`; cek visual.
+
+- [ ] **3D-02 — Fungsi murni 3D**
+  - Tujuan: `lib/world.ts` (`gridToWorld`, `worldToCell`, `cellToLatLon`, `windVectorWorld`), `lib/fuel.ts` (`decodeFuel`), `lib/cells.ts` (`cellVisualState`, `bucketByIgnition`, `diffCells`, `hashJitter`); tambah `getFuel()` di client dan tipe; state `fuel`/`quality`.
+  - Acceptance: FRONTEND_SPEC §4–§5; konversi sel↔lat/lon bolak-balik konsisten dengan SIMULATION_SPEC §7.
+  - Uji: vitest (utara = −z, 270° → tujuan +x, bucket benar, diff tidak melewatkan sel saat loncat).
+
+- [ ] **3D-03 — Vegetasi statis (InstancedMesh)**
+  - Tujuan: `Vegetation` dari `fuel`: pohon/rumput per tema region, ubin air, tepi; jitter deterministik; warna digeser oleh `fuel_moisture`.
+  - Acceptance: tiga region tampak berbeda jelas; sungai terlihat; ≤ 3 `InstancedMesh`; tidak ada `Math.random`.
+  - Uji: vitest `hashJitter`; cek visual ketiga region.
+
+- [ ] **3D-04 — Titik api via klik tanah**
+  - Tujuan: raycast klik → sel → titik (maks 5), `IgnitionMarkers` (obor beranimasi), hapus lewat klik obor; bedakan klik vs drag kamera; tolak sel air.
+  - Acceptance: FRONTEND_SPEC §8; "Jalankan" nonaktif tanpa titik; titik terkirim sebagai lat/lon pusat sel.
+  - Uji: vitest logika klik-vs-drag dan validasi sel; cek manual.
+
+- [ ] **3D-05 — Animasi api dan arang**
+  - Tujuan: `FireLayer` menerapkan `burning/burned` sesuai `t`, incremental; `InstancedMesh` api berdenyut; `MAX_FLAMES`.
+  - Acceptance: titik awal terlihat menyala di `t=0`; maju/mundur/loncat konsisten (frame sama untuk `t` sama); tidak ada alokasi di `useFrame`.
+  - Uji: vitest `diffCells` ekuivalen dengan hitung ulang penuh; cek visual.
+
 - [ ] **P2-09 — Slider waktu, play/pause, statistik**
   - Tujuan: `TimeControls`, `StatsPanel`.
-  - Acceptance: FRONTEND_SPEC §6; statistik sama dengan respons.
+  - Acceptance: FRONTEND_SPEC §6; statistik sama dengan respons. Bug `TimeControls` diperbaiki: kursor tombol tidak `not-allowed` saat playing, dan loop animasi tidak bergantung pada `state.playing` di dependency effect.
   - Uji: vitest logika maju-frame (clamp, berhenti di `steps_run`); cek manual.
+
+- [ ] **3D-06 — Efek angin dan polesan visual**
+  - Tujuan: `WindFx` (indikator arah angin di scene, asap hanyut, goyang pohon) dengan toggle; hormati `prefers-reduced-motion`.
+  - Acceptance: arah efek = `windVectorWorld`; mati di `quality='low'` dan reduced-motion.
+  - Uji: vitest vektor angin; cek visual.
+
+- [ ] **3D-07 — Kualitas dan performa**
+  - Tujuan: mode `high`/`low`, DPR cap, bayangan opsional, ukur fps (target KS-06), toggle "Mode performa rendah".
+  - Acceptance: angka fps terukur dicatat di ROADMAP; mobile `low` otomatis.
+  - Uji: profil manual; `npm run build`.
 
 ## Fase 3 — Pengerasan dan polesan (minggu 6–8)
 
 - [ ] **P3-01 — Banner batasan domain**
-  - Tujuan: `LimitationsBanner` + konstanta `text.ts` + ulang di `StatsPanel`.
+  - Tujuan: `LimitationsBanner` (overlay HTML di atas `Canvas`) + konstanta `text.ts` + ulang di `StatsPanel`.
   - Acceptance: teks identik `LIMITATIONS_TEXT_ID`; selalu terlihat (KS-07).
   - Uji: vitest memeriksa teks pada `App`.
 
@@ -115,7 +168,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Uji: vitest dengan respons error ter-mock.
 
 - [ ] **P3-03 — Layout mobile**
-  - Tujuan: layout ≤ 768 px sesuai FRONTEND_SPEC §9.
+  - Tujuan: layout ≤ 768 px sesuai FRONTEND_SPEC §9, termasuk gestur sentuh `OrbitControls` dan `touch-action`.
   - Acceptance: KS-08; target sentuh ≥ 44 px.
   - Uji: cek manual di emulasi 360×640; `npm run build`.
 
