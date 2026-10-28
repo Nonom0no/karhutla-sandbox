@@ -24,12 +24,12 @@ async function handleResponse<T>(resp: Response): Promise<T> {
 }
 
 export async function getRegions(): Promise<GetRegionsResponse> {
-  const resp = await fetch(`${API_BASE}/regions`);
+  const resp = await fetch(`${API_BASE}/api/regions`);
   return handleResponse<GetRegionsResponse>(resp);
 }
 
 export async function simulate(request: SimulateRequest): Promise<SimulateResponse> {
-  const resp = await fetch(`${API_BASE}/simulate`, {
+  const resp = await fetch(`${API_BASE}/api/simulate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),
@@ -38,6 +38,6 @@ export async function simulate(request: SimulateRequest): Promise<SimulateRespon
 }
 
 export async function getSimulation(id: string): Promise<SimulateResponse> {
-  const resp = await fetch(`${API_BASE}/simulation/${encodeURIComponent(id)}`);
+  const resp = await fetch(`${API_BASE}/api/simulation/${encodeURIComponent(id)}`);
   return handleResponse<SimulateResponse>(resp);
 }
