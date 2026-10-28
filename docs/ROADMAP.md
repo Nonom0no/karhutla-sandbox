@@ -54,7 +54,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
 
 ## Fase 1B — Tambahan backend (3D)
 
-- [ ] **P1-09 — Endpoint grid fuel**
+- [x] **P1-09 — Endpoint grid fuel**
   - Tujuan: `GET /api/regions/{id}/fuel` sesuai API_SPEC §3b.
   - File: `backend/app/api/{routes,schemas}.py`, `backend/app/sim/{regions,encoding}.py`, `backend/tests/{test_api,test_api_contract}.py`.
   - Acceptance: respons 40.000 byte mentah, nilai = round(fuel×255); `REGION_NOT_FOUND` 404; tepi dan sungai bernilai 0; contract test diperbarui.

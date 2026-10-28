@@ -7,13 +7,14 @@ from math import floor
 from typing import Any
 
 import numpy as np
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from numpy.random import Generator, default_rng
 
 from app.api.errors import (
     IgnitionOnNonFuelError,
     IgnitionOutOfBoundsError,
     InternalError,
+    RegionNotFoundError,
     SimulationNotFoundError,
     UnknownRegionError,
 )
@@ -130,7 +131,7 @@ def get_region_fuel(region_id: str) -> FuelData:
     try:
         _ = get_region(region_id)
     except KeyError as e:
-        raise UnknownRegionError(region_id) from e
+        raise RegionNotFoundError(region_id) from e
 
     # Load fuel grid (float32, 0‑1)
     fuel_grid = load_fuel_grid(region_id)

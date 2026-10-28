@@ -55,13 +55,25 @@ class ValidationError(AppError):
 
 
 class UnknownRegionError(AppError):
-    """Unknown region_id (422)."""
+    """Unknown region_id (422 for simulate)."""
 
     def __init__(self, region_id: str) -> None:
         super().__init__(
             code=ErrorCode.UNKNOWN_REGION,
             message=f"Unknown region_id: {region_id}",
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            details={"region_id": region_id},
+        )
+
+
+class RegionNotFoundError(AppError):
+    """Region not found for fuel endpoint (404)."""
+
+    def __init__(self, region_id: str) -> None:
+        super().__init__(
+            code="REGION_NOT_FOUND",
+            message=f"Region not found: {region_id}",
+            status_code=status.HTTP_404_NOT_FOUND,
             details={"region_id": region_id},
         )
 

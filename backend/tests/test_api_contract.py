@@ -55,6 +55,17 @@ EXPECTED_STATS_KEYS = {"burned_cells", "burned_fraction", "burned_area_ha"}
 EXPECTED_ERROR_KEYS = {"error"}
 EXPECTED_ERROR_BODY_KEYS = {"code", "message", "details"}
 
+EXPECTED_FUEL_KEYS = {
+    "region_id",
+    "height",
+    "width",
+    "encoding",
+    "dtype",
+    "order",
+    "scale",
+    "data",
+}
+
 
 def test_regions_response_structure() -> None:
     """GET /regions returns expected structure matching API_SPEC example."""
@@ -389,3 +400,49 @@ def test_deterministic_seed() -> None:
     assert d1["ignition_time"]["data"] == d2["ignition_time"]["data"]
     assert d1["steps_run"] == d2["steps_run"]
     assert d1["stats"] == d2["stats"]
+
+
+def test_get_region_fuel_response_structure() -> None:
+    """GET /regions/{id}/fuel returns expected structure matching API_SPEC example."""
+    response = client.get("/api/regions/dry_forest/fuel")
+    assert response.status_code == 200
+
+    data = response.json()
+    assert set(data.keys()) == EXPECTED_FUEL_KEYS
+
+    # Check specific values per API_SPEC §3b
+    assert data["region_id"] == "dry_forest"
+    assert data["height"] == 200
+    assert data["width"] == 200
+    assert data["encoding"] == "base64-uint8"
+    assert data["dtype"] == "uint8"
+    assert data["order"] == "row-major"
+    assert data["scale"] == 255
+    assert isinstance(data["data"], str)
+    assert len(data["data"]) > 0
+
+
+def test_get_region_fuel_all_regions_structure() -> None:
+    """All three regions return correct fuel structure."""
+    for region_id in ["tropical_rainforest", "dry_forest", "grassland"]:
+        response = client.get(f"/api/regions/{region_id}/fuel")
+        assert response.status_code == 200, f"Region {region_id} failed: {response.json()}"
+
+        data = response.json()
+        assert set(data.keys()) == EXPECTED_FUEL_KEYS
+        assert data["region_id"] == region_id
+        assert data["height"] == 200
+        assert data["width"] == 200
+        assert data["scale"] == 255
+
+
+def test_get_region_fuel_not_found_structure() -> None:
+    """Unknown region returns 404 with REGION_NOT_FOUND error envelope."""
+    response = client.get("/api/regions/invalid_region/fuel")
+    assert response.status_code == 404
+
+    data = response.json()
+    assert set(data.keys()) == EXPECTED_ERROR_KEYS
+    error = data["error"]
+    assert set(error.keys()) == EXPECTED_ERROR_BODY_KEYS
+    assert error["code"] == "REGION_NOT_FOUND"

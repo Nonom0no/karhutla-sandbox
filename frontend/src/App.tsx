@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useAppState, useAppDispatch } from "./state/context";
 import { ControlPanel } from "./components/ControlPanel";
-import { MapView } from "./components/MapView";
 import { TimeControls } from "./components/TimeControls";
 import { StatsPanel } from "./components/StatsPanel";
+import { SceneView } from "./scene/SceneView";
 import { getRegions } from "./api/client";
 
 function App() {
@@ -21,17 +21,6 @@ function App() {
 
   const currentRegion = state.regions.find((r) => r.id === state.regionId);
 
-  const handleAddIgnitionPoint = (point: { lat: number; lon: number }) => {
-    dispatch({ type: "ADD_IGNITION_POINT", payload: point });
-  };
-
-  const handleRemoveIgnitionPoint = (point: {
-    lat: number;
-    lon: number;
-  }) => {
-    dispatch({ type: "REMOVE_IGNITION_POINT", payload: point });
-  };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <header style={{ padding: "1rem", background: "#f5f5f5", borderBottom: "1px solid #ddd" }}>
@@ -45,15 +34,8 @@ function App() {
         </aside>
         <section style={{ flex: 1, position: "relative", minHeight: 0, height: "600px" }}>
           {currentRegion && (
-            <MapView
-              bbox={currentRegion.grid.bbox}
-              ignitionPoints={state.ignitionPoints}
-              onAddIgnitionPoint={handleAddIgnitionPoint}
-              onRemoveIgnitionPoint={handleRemoveIgnitionPoint}
-              ignition={state.ignition}
-              t={state.t}
-              gridWidth={currentRegion.grid.width}
-              gridHeight={currentRegion.grid.height}
+            <SceneView
+              regionId={currentRegion.id}
             />
           )}
         </section>
