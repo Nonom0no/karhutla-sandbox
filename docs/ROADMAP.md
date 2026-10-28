@@ -71,7 +71,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: peta tampil, bbox terlihat sebagai batas persegi tipis, tanpa kebocoran instance peta saat unmount.
   - Uji: `npm run test`; cek manual di `npm run dev`.
 
-- [ ] **P2-04 — State dan pemilih region**
+- [x] **P2-04 — State dan pemilih region**
   - Tujuan: reducer/context; muat `/regions`; ganti region mereset state.
   - File: `src/state/{reducer,context}.tsx`, `ControlPanel.tsx`.
   - Acceptance: sesuai FRONTEND_SPEC §3; default_params terisi.
