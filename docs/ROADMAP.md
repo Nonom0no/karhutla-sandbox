@@ -87,7 +87,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: drag mouse/sentuh; keyboard ±1°/±15°; 270° = handle di kiri, panah ke kanan.
   - Uji: vitest untuk `pointerToDeg` (0,90,180,270), `degToCompassLabel`, `normalizeDeg`.
 
-- [ ] **P2-07 — Titik api via klik peta**
+- [x] **P2-07 — Titik api via klik peta**
   - Tujuan: tambah/hapus marker, maks 5, hanya di dalam bbox.
   - Acceptance: tombol "Jalankan" nonaktif tanpa titik; petunjuk di luar bbox.
   - Uji: vitest logika `isInsideBbox`; cek manual.
