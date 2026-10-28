@@ -77,7 +77,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: sesuai FRONTEND_SPEC §3; default_params terisi.
   - Uji: vitest reducer (ganti region, tambah/hapus titik, batas 5).
 
-- [ ] **P2-05 — Slider parameter**
+- [x] **P2-05 — Slider parameter**
   - Tujuan: slider `fire_intensity`, `wind_speed`, `fuel_moisture`, `steps`.
   - Acceptance: rentang, langkah, dan default = API_SPEC §4; label Indonesia dengan satuan.
   - Uji: vitest render + perubahan nilai; `npm run lint`.
