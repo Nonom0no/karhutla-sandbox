@@ -13,3 +13,9 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Fire overlay pixelated rendering */
+.fire-overlay img {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}

@@ -1,4 +1,5 @@
 // src/state/types.ts - Types for app state and actions
+export const BURNING_DISPLAY_STEPS = 3; // from FRONTEND_SPEC §4
 
 import type { RegionInfo, SimulateResponse } from "../api/types";
 

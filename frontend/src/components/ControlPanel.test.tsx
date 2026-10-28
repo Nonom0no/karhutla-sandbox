@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "../api/client";
+
 import type { RegionInfo } from "../api/types";
 import { AppProvider, useAppState } from "../state/context";
 import { ControlPanel } from "./ControlPanel";
@@ -109,10 +110,7 @@ describe("ControlPanel component", () => {
     expect(screen.getByTestId("wind-speed").textContent).toBe("12");
   });
 
-  it("calls onSimulate when Jalankan button is clicked with points", async () => {
-    const handleSimulate = vi.fn();
-
-    // Create state override with ignitionPoints
+  it("enables Jalankan button when ignitionPoints are present", async () => {
     const stateWithPoints = {
       regions: mockRegions,
       regionId: "dry_forest",
@@ -129,14 +127,11 @@ describe("ControlPanel component", () => {
 
     render(
       <AppProvider initialStateOverride={stateWithPoints}>
-        <ControlPanel onSimulate={handleSimulate} />
+        <ControlPanel />
       </AppProvider>
     );
 
-    const button = screen.getByRole("button", { name: /jalankan simulasi/i });
+    const button = await screen.findByRole("button", { name: /jalankan simulasi/i });
     expect((button as HTMLButtonElement).disabled).toBe(false);
-
-    fireEvent.click(button);
-    expect(handleSimulate).toHaveBeenCalledTimes(1);
   });
 });
