@@ -60,12 +60,12 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
   - Acceptance: `npm run dev` menampilkan halaman; skrip `dev`, `build`, `test`, `lint`, `typecheck` ada dan jalan.
   - Uji: `npm run typecheck && npm run lint && npm run test && npm run build`.
 
-- [ ] **P2-02 — Klien API, tipe, decode**
+- [x] **P2-02 — Klien API, tipe, decode**
   - Tujuan: `src/api/{client,types}.ts`, `src/lib/decode.ts`.
   - Acceptance: tipe sama dengan API_SPEC; decode base64→`Int16Array` memakai `DataView` little-endian; error envelope diparse.
   - Uji: vitest dengan vektor uji (nilai −1, 0, 500) dan fetch yang di-mock.
 
-- [ ] **P2-03 — MapView dasar**
+- [x] **P2-03 — MapView dasar**
   - Tujuan: peta Leaflet dengan tile OSM + atribusi, `fitBounds` ke bbox region.
   - File: `src/components/MapView.tsx`, `src/lib/geo.ts`.
   - Acceptance: peta tampil, bbox terlihat sebagai batas persegi tipis, tanpa kebocoran instance peta saat unmount.
