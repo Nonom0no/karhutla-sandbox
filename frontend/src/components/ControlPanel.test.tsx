@@ -1,6 +1,6 @@
 // src/components/ControlPanel.test.tsx - Component tests for ControlPanel
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "../api/client";
@@ -53,23 +53,37 @@ const StateInspector: React.FC = () => {
   );
 };
 
+// Initial state with regions pre-loaded (as App.tsx would fetch them)
+const initialStateWithRegions = {
+  regions: mockRegions,
+  regionId: "dry_forest",
+  params: mockRegions[0].default_params,
+  ignitionPoints: [],
+  status: "idle" as const,
+  result: null,
+  ignition: null,
+  t: 0,
+  playing: false,
+  speed: 1 as const,
+  error: null,
+};
+
 describe("ControlPanel component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(client.getRegions).mockResolvedValue({ regions: mockRegions });
   });
 
-  it("fetches regions on mount and populates dropdown", async () => {
+  it("renders region dropdown when regions are in state", async () => {
     render(
-      <AppProvider>
+      <AppProvider initialStateOverride={initialStateWithRegions}>
         <ControlPanel />
         <StateInspector />
       </AppProvider>
     );
 
-    await waitFor(() => {
-      expect(client.getRegions).toHaveBeenCalledTimes(1);
-    });
+    // getRegions should NOT be called by ControlPanel (App.tsx handles it)
+    expect(client.getRegions).not.toHaveBeenCalled();
 
     const select = await screen.findByRole("combobox", { name: /wilayah/i });
     expect(select).toBeDefined();
@@ -84,7 +98,7 @@ describe("ControlPanel component", () => {
 
   it("disables Jalankan button when ignitionPoints is empty", async () => {
     render(
-      <AppProvider>
+      <AppProvider initialStateOverride={initialStateWithRegions}>
         <ControlPanel />
       </AppProvider>
     );
@@ -95,7 +109,7 @@ describe("ControlPanel component", () => {
 
   it("changes region and updates default params when user changes dropdown", async () => {
     render(
-      <AppProvider>
+      <AppProvider initialStateOverride={initialStateWithRegions}>
         <ControlPanel />
         <StateInspector />
       </AppProvider>
@@ -112,17 +126,8 @@ describe("ControlPanel component", () => {
 
   it("enables Jalankan button when ignitionPoints are present", async () => {
     const stateWithPoints = {
-      regions: mockRegions,
-      regionId: "dry_forest",
-      params: mockRegions[0].default_params,
+      ...initialStateWithRegions,
       ignitionPoints: [{ lat: 0.05, lon: 100.05 }],
-      status: "idle" as const,
-      result: null,
-      ignition: null,
-      t: 0,
-      playing: false,
-      speed: 1 as const,
-      error: null,
     };
 
     render(
