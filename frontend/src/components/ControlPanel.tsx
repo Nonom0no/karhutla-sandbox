@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { getRegions } from "../api/client";
 import { useAppDispatch, useAppState } from "../state/context";
 import type { SimulationParams } from "../state/types";
+import { Slider } from "./Slider";
 
 export interface ControlPanelProps {
   onSimulate?: () => void;
@@ -89,34 +90,27 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onSimulate }) => {
 
       {/* Parameters */}
       <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
-        <div>
-          <label htmlFor="fire_intensity" style={{ display: "block" }}>
-            Intensitas Api
-          </label>
-          <input
-            id="fire_intensity"
-            type="number"
-            step="0.1"
-            value={state.params.fire_intensity}
-            onChange={(e) => handleParamChange("fire_intensity", e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
+        {/* Intensitas Api slider */}
+        <Slider
+          label="Intensitas Api (1–100)"
+          min={1}
+          max={100}
+          step={1}
+          value={state.params.fire_intensity}
+          onChange={(v) => handleParamChange("fire_intensity", String(v))}
+        />
 
-        <div>
-          <label htmlFor="wind_speed" style={{ display: "block" }}>
-            Kecepatan Angin (m/s)
-          </label>
-          <input
-            id="wind_speed"
-            type="number"
-            step="0.5"
-            value={state.params.wind_speed}
-            onChange={(e) => handleParamChange("wind_speed", e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
+        {/* Kecepatan Angin slider */}
+        <Slider
+          label="Kecepatan Angin (0–20 m/s)"
+          min={0}
+          max={20}
+          step={0.1}
+          value={state.params.wind_speed}
+          onChange={(v) => handleParamChange("wind_speed", String(v))}
+        />
 
+        {/* Wind from degree input retained */}
         <div>
           <label htmlFor="wind_from_deg" style={{ display: "block" }}>
             Arah Angin (°)
@@ -131,33 +125,25 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onSimulate }) => {
           />
         </div>
 
-        <div>
-          <label htmlFor="fuel_moisture" style={{ display: "block" }}>
-            Kelembapan Bahan Bakar
-          </label>
-          <input
-            id="fuel_moisture"
-            type="number"
-            step="0.01"
-            value={state.params.fuel_moisture}
-            onChange={(e) => handleParamChange("fuel_moisture", e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
+        {/* Kelembapan Bahan Bakar slider */}
+        <Slider
+          label="Kelembapan Bahan Bakar (0–1)"
+          min={0}
+          max={1}
+          step={0.01}
+          value={state.params.fuel_moisture}
+          onChange={(v) => handleParamChange("fuel_moisture", String(v))}
+        />
 
-        <div>
-          <label htmlFor="steps" style={{ display: "block" }}>
-            Langkah Simulasi
-          </label>
-          <input
-            id="steps"
-            type="number"
-            step="1"
-            value={state.params.steps}
-            onChange={(e) => handleParamChange("steps", e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
+        {/* Langkah Simulasi slider */}
+        <Slider
+          label="Jumlah Langkah (1–500)"
+          min={1}
+          max={500}
+          step={1}
+          value={state.params.steps}
+          onChange={(v) => handleParamChange("steps", String(v))}
+        />
 
         <div>
           <label htmlFor="seed" style={{ display: "block" }}>
