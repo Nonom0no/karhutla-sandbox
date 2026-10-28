@@ -54,7 +54,7 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
 
 ## Fase 2 — Frontend inti (minggu 3–5)
 
-- [ ] **P2-01 — Scaffold frontend**
+- [x] **P2-01 — Scaffold frontend**
   - Tujuan: Vite + React + TS strict, eslint, vitest, `.env.example`.
   - File: `frontend/package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/{main,App}.tsx`, `.env.example`.
   - Acceptance: `npm run dev` menampilkan halaman; skrip `dev`, `build`, `test`, `lint`, `typecheck` ada dan jalan.
