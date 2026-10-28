@@ -4,43 +4,43 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
 
 ## Fase 1 — Simulator dan API backend (minggu 1–3)
 
-- [ ] **P1-01 — Scaffold backend**
+- [x] **P1-01 — Scaffold backend**
   - Tujuan: proyek FastAPI minimal dengan `GET /health`, pytest, ruff.
   - File: `backend/pyproject.toml`, `backend/app/{__init__,main,config}.py`, `backend/tests/test_api.py`.
   - Acceptance: `uvicorn app.main:app` jalan; `/health` → `{"status":"ok","version":"0.1.0"}`; `pip install -e ".[dev]"` berhasil.
   - Uji: `pytest -q` dan `ruff check .` lulus.
 
-- [ ] **P1-02 — Parameter dan mapping**
+- [x] **P1-02 — Parameter dan mapping**
   - Tujuan: konstanta/rentang dan fungsi `intensity_to_p_base`, `dryness_multiplier`.
   - File: `backend/app/sim/params.py`, `backend/tests/test_params.py`.
   - Acceptance: nilai sesuai SIMULATION_SPEC §5 (T-SIM-10).
   - Uji: `pytest -q tests/test_params.py`.
 
-- [ ] **P1-03 — Inti CA**
+- [x] **P1-03 — Inti CA**
   - Tujuan: `step()` (sesuai referensi) dan `run_simulation()` yang menghasilkan `ignition_time` dan `steps_run`.
   - File: `backend/app/sim/ca.py`, `backend/tests/test_ca.py`.
   - Acceptance: T-SIM-01…T-SIM-09 lulus; tanpa loop per sel.
   - Uji: `pytest -q tests/test_ca.py`.
 
-- [ ] **P1-04 — Fuel grid preset**
+- [x] **P1-04 — Fuel grid preset**
   - Tujuan: generator deterministik + 3 file `.npy` + loader region.
   - File: `backend/scripts/generate_fuel_grids.py`, `backend/app/data/fuel/*.npy`, `backend/app/sim/regions.py`, `backend/tests/test_regions.py`.
   - Acceptance: T-SIM-12 lulus; menjalankan generator dua kali menghasilkan file identik; registri memuat id, nama, bbox, default_params sesuai SIMULATION_SPEC §6.
   - Uji: `python scripts/generate_fuel_grids.py && pytest -q tests/test_regions.py`.
 
-- [ ] **P1-05 — Encoding**
+- [x] **P1-05 — Encoding**
   - Tujuan: encode/decode base64 int16 LE.
   - File: `backend/app/sim/encoding.py`, `backend/tests/test_encoding.py`.
   - Acceptance: T-SIM-11 lulus; nilai −1 dan 0 dan 500 terjaga.
   - Uji: `pytest -q tests/test_encoding.py`.
 
-- [ ] **P1-06 — Result store**
+- [x] **P1-06 — Result store**
   - Tujuan: store in-memory dengan TTL dan batas entri.
   - File: `backend/app/store.py`, `backend/tests/test_store.py`.
   - Acceptance: TTL 1800 s, maks 100 entri, buang terlama; fungsi waktu dapat disuntik (jam palsu) untuk tes.
   - Uji: `pytest -q tests/test_store.py`.
 
-- [ ] **P1-07 — Endpoint, error, CORS**
+- [x] **P1-07 — Endpoint, error, CORS**
   - Tujuan: `POST /simulate`, `GET /simulation/{id}`, `GET /regions`, envelope error, CORS.
   - File: `backend/app/api/{routes,schemas,errors}.py`, `backend/app/main.py`, `backend/tests/{test_api,test_api_contract}.py`.
   - Acceptance: skema dan kode error persis API_SPEC; konversi lat/lon→sel; T-SIM-13; `test_api_contract.py` memeriksa kunci respons terhadap contoh di API_SPEC.
