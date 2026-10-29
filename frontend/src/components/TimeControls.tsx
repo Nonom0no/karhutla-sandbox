@@ -7,12 +7,23 @@ export function TimeControls() {
   const { t, playing, speed, result, params, ignition } = state;
   const stepsRun = result?.steps_run ?? params.steps;
   const animationRef = useRef<number | null>(null);
+  const playingRef = useRef(playing);
+  const prefersReducedMotion = useRef(false);
+
+  // Check prefers-reduced-motion on mount
+  useEffect(() => {
+    prefersReducedMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }, []);
+
+  // Keep playingRef in sync
+  playingRef.current = playing;
 
   const maxT = stepsRun;
 
-  // Animation loop
+  // Animation loop - uses ref for playing to avoid dependency on state.playing
+  // Respects prefers-reduced-motion: no auto-play
   useEffect(() => {
-    if (!playing || t >= maxT) {
+    if (!playing || t >= maxT || prefersReducedMotion.current) {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = null;
@@ -32,7 +43,7 @@ export function TimeControls() {
         dispatch({ type: "SET_T", payload: Math.min(t + 1, maxT) });
         lastTime = now;
       }
-      if (state.playing) {
+      if (playingRef.current) {
         animationRef.current = requestAnimationFrame(animate);
       }
     }
@@ -43,7 +54,7 @@ export function TimeControls() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [playing, t, speed, maxT, dispatch, state.playing]);
+  }, [playing, t, speed, maxT, dispatch]);
 
   const handlePlayPause = () => {
     if (t >= maxT) {
@@ -64,6 +75,29 @@ export function TimeControls() {
     }
   };
 
+  const handleSliderKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+      e.preventDefault();
+      dispatch({ type: "SET_T", payload: Math.max(0, t - 1) });
+      if (playing) dispatch({ type: "SET_PLAYING", payload: false });
+    } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+      e.preventDefault();
+      dispatch({ type: "SET_T", payload: Math.min(maxT, t + 1) });
+      if (playing) dispatch({ type: "SET_PLAYING", payload: false });
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      dispatch({ type: "SET_T", payload: 0 });
+      if (playing) dispatch({ type: "SET_PLAYING", payload: false });
+    } else if (e.key === "End") {
+      e.preventDefault();
+      dispatch({ type: "SET_T", payload: maxT });
+      if (playing) dispatch({ type: "SET_PLAYING", payload: false });
+    }
+  };
+
+  const playPauseLabel = playing ? "Jeda" : t >= maxT ? "Ulang" : "Putar";
+  const playPauseAriaLabel = playing ? "Jeda animasi" : t >= maxT ? "Ulang dari awal" : "Putar animasi";
+
   if (!ignition) {
     return null;
   }
@@ -74,24 +108,27 @@ export function TimeControls() {
         <button
           onClick={handlePlayPause}
           disabled={maxT === 0}
+          aria-label={playPauseAriaLabel}
           style={{
-            padding: "0.5rem 1rem",
+            padding: "0.75rem 1rem",
             background: playing ? "#ff9800" : "#4caf50",
             color: "white",
             border: "none",
             borderRadius: "4px",
-            cursor: playing ? "not-allowed" : "pointer",
+            cursor: maxT === 0 ? "not-allowed" : "pointer",
             minWidth: "80px",
+            minHeight: "44px",
           }}
         >
-          {playing ? "Jeda" : t >= maxT ? "Ulang" : "Putar"}
+          {playPauseLabel}
         </button>
         <label style={{ fontSize: "0.875rem" }}>
           Kecepatan:
           <select
             value={speed}
             onChange={handleSpeedChange}
-            style={{ marginLeft: "0.5rem", padding: "0.25rem" }}
+            aria-label="Kecepatan animasi"
+            style={{ marginLeft: "0.5rem", padding: "0.5rem", minHeight: "44px" }}
           >
             <option value={0.5}>0.5×</option>
             <option value={1}>1×</option>
@@ -101,14 +138,22 @@ export function TimeControls() {
         </label>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        <span style={{ fontSize: "0.875rem", minWidth: "40px" }}>{t}</span>
+        <span id="time-slider-value" style={{ fontSize: "0.875rem", minWidth: "40px" }}>{t}</span>
         <input
           type="range"
           min="0"
           max={maxT}
           value={t}
           onChange={handleSliderChange}
-          style={{ flex: 1 }}
+          onKeyDown={handleSliderKeyDown}
+          role="slider"
+          aria-valuemin={0}
+          aria-valuemax={maxT}
+          aria-valuenow={t}
+          aria-valuetext={`Langkah ${t} dari ${maxT}`}
+          aria-label="Langkah waktu"
+          aria-labelledby="time-slider-value"
+          style={{ flex: 1, height: "44px" }}
         />
         <span style={{ fontSize: "0.875rem", minWidth: "40px", textAlign: "right" }}>{maxT}</span>
       </div>

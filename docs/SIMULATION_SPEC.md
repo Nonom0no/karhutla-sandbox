@@ -73,7 +73,7 @@ Semua grid 200x200 `float32`, disimpan di `backend/app/data/fuel/<region_id>.npy
 
 | `region_id` | Nama (UI) | `base_mean` | `amp` | `seed` generator | `fuel_moisture` default | bbox `[west,south,east,north]` (ilustratif) |
 |-------------|-----------|-------------|-------|------------------|-------------------------|-----------------------------------------------|
-| `tropical_rainforest` | Hutan Hujan Tropis | 0.40 | 0.10 | 101 | 0.7 | [113.900, -2.254, 113.954, -2.200] |
+| `tropical_rainforest` | Hutan Hujan Tropis | 0.78 | 0.10 | 101 | 0.50 | [113.900, -2.254, 113.954, -2.200] |
 | `dry_forest` | Hutan Mengering | 0.70 | 0.10 | 102 | 0.4 | [101.500, 0.500, 101.554, 0.554] |
 | `grassland` | Padang Rumput | 0.90 | 0.07 | 103 | 0.5 | [120.000, -9.700, 120.054, -9.646] |
 

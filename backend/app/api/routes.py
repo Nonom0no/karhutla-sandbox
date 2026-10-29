@@ -7,13 +7,14 @@ from math import floor
 from typing import Any
 
 import numpy as np
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from numpy.random import Generator, default_rng
 
 from app.api.errors import (
     IgnitionOnNonFuelError,
     IgnitionOutOfBoundsError,
     InternalError,
+    RegionNotFoundError,
     SimulationNotFoundError,
     UnknownRegionError,
 )
@@ -130,7 +131,7 @@ def get_region_fuel(region_id: str) -> FuelData:
     try:
         _ = get_region(region_id)
     except KeyError as e:
-        raise UnknownRegionError(region_id) from e
+        raise RegionNotFoundError(region_id) from e
 
     # Load fuel grid (float32, 0‑1)
     fuel_grid = load_fuel_grid(region_id)
@@ -154,14 +155,14 @@ def get_region_fuel(region_id: str) -> FuelData:
 @router.post("/simulate", response_model=SimulateResponse)
 def run_simulation_endpoint(
     request: SimulateRequest,
-    store: ResultStore = Depends(get_store),
-    rng: Generator = Depends(get_rng_for_request),
 ) -> SimulateResponse:
     """
     Run a wildfire simulation.
 
     Validates input, runs CA simulation, stores result, returns response.
     """
+    store = get_store()
+    rng = get_rng_for_request(request)
     # Validate region_id (do this before Pydantic's extra validation for proper error code)
     valid_region_ids = {"tropical_rainforest", "dry_forest", "grassland"}
     if request.region_id not in valid_region_ids:
@@ -288,9 +289,9 @@ def run_simulation_endpoint(
 @router.get("/simulation/{sim_id}", response_model=SimulateResponse)
 def get_simulation(
     sim_id: str,
-    store: ResultStore = Depends(get_store),
 ) -> SimulateResponse:
     """Retrieve a stored simulation result by ID."""
+    store = get_store()
     result = store.get(sim_id)
     if result is None:
         raise SimulationNotFoundError(sim_id)

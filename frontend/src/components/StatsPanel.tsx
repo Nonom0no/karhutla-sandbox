@@ -1,4 +1,5 @@
 import { useAppState } from "../state/context";
+import { LIMITATIONS_TEXT_ID } from "../lib/text";
 
 export function StatsPanel() {
   const { result, status } = useAppState();
@@ -38,6 +39,19 @@ export function StatsPanel() {
           <dd style={{ margin: 0 }}>{seed}</dd>
         </div>
       </dl>
+      <div
+        style={{
+          marginTop: "1rem",
+          padding: "0.5rem",
+          background: "#fff8e1",
+          border: "1px solid #ffe082",
+          borderRadius: "4px",
+          fontSize: "0.75rem",
+          color: "#5d4037",
+        }}
+      >
+        {LIMITATIONS_TEXT_ID}
+      </div>
     </div>
   );
 }

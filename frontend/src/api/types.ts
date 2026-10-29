@@ -84,6 +84,18 @@ export interface Stats {
   burned_area_ha: number;
 }
 
+// Fuel grid response (GET /api/regions/{id}/fuel)
+export interface FuelData {
+  region_id: string;
+  height: number;
+  width: number;
+  encoding: string; // "base64-uint8"
+  dtype: string; // "uint8"
+  order: string; // "row-major"
+  scale: number; // 255
+  data: string; // base64-encoded Uint8Array
+}
+
 // Error envelope
 export interface ApiError {
   code: string;

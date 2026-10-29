@@ -1,5 +1,8 @@
 """Integration tests for API endpoints."""
 
+import base64
+
+import numpy as np
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -247,3 +250,70 @@ def test_stats_calculation() -> None:
     assert abs(stats["burned_fraction"] - stats["burned_cells"] / 40000) < 0.0001
     # burned_area_ha = burned_cells * 0.09
     assert abs(stats["burned_area_ha"] - stats["burned_cells"] * 0.09) < 0.01
+
+
+def test_get_region_fuel_basic() -> None:
+    """GET /regions/{id}/fuel returns correct structure for dry_forest."""
+    response = client.get("/api/regions/dry_forest/fuel")
+    assert response.status_code == 200
+    data = response.json()
+
+    # Required fields per API_SPEC §3b
+    assert data["region_id"] == "dry_forest"
+    assert data["height"] == 200
+    assert data["width"] == 200
+    assert data["encoding"] == "base64-uint8"
+    assert data["dtype"] == "uint8"
+    assert data["order"] == "row-major"
+    assert data["scale"] == 255
+    assert "data" in data
+    assert isinstance(data["data"], str)
+
+    # Decode and verify size = 40,000 bytes (200*200)
+    import base64
+
+    decoded = base64.b64decode(data["data"])
+    assert len(decoded) == 40000
+
+
+def test_get_region_fuel_all_regions() -> None:
+    """All three regions have fuel endpoint working."""
+    for region_id in ["tropical_rainforest", "dry_forest", "grassland"]:
+        response = client.get(f"/api/regions/{region_id}/fuel")
+        assert response.status_code == 200, f"Region {region_id} failed: {response.json()}"
+        data = response.json()
+        assert data["region_id"] == region_id
+        assert data["height"] == 200
+        assert data["width"] == 200
+        assert data["scale"] == 255
+
+
+def test_get_region_fuel_not_found() -> None:
+    """Unknown region returns 404 REGION_NOT_FOUND."""
+    response = client.get("/api/regions/invalid_region/fuel")
+    assert response.status_code == 404
+    data = response.json()
+    assert data["error"]["code"] == "REGION_NOT_FOUND"
+
+
+def test_get_region_fuel_values_valid() -> None:
+    """Fuel values are valid: 0 for water/edge, 1-255 for burnable."""
+    response = client.get("/api/regions/dry_forest/fuel")
+    assert response.status_code == 200
+    data = response.json()
+
+    decoded = base64.b64decode(data["data"])
+    arr = np.frombuffer(decoded, dtype=np.uint8).reshape(200, 200)
+
+    # All values must be in range 0-255
+    assert np.all(arr >= 0)
+    assert np.all(arr <= 255)
+
+    # Edges should be 0 (non-burnable)
+    assert np.all(arr[0, :] == 0)  # top edge
+    assert np.all(arr[-1, :] == 0)  # bottom edge
+    assert np.all(arr[:, 0] == 0)  # left edge
+    assert np.all(arr[:, -1] == 0)  # right edge
+
+    # Should have some burnable cells (>0)
+    assert np.any(arr > 0)

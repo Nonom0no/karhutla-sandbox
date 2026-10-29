@@ -37,6 +37,8 @@ export interface AppState {
   playing: boolean;
   speed: Speed;
   error: AppError | null;
+  fuel: Uint8Array | null;
+  quality: "high" | "low";
 }
 
 export type Action =
@@ -58,4 +60,6 @@ export type Action =
   | { type: "SET_PLAYING"; payload: boolean }
   | { type: "SET_SPEED"; payload: Speed }
   | { type: "SET_ERROR"; payload: AppError | null }
+  | { type: "SET_FUEL"; payload: Uint8Array | null }
+  | { type: "SET_QUALITY"; payload: "high" | "low" }
   | { type: "RESET" };

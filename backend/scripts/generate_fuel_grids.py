@@ -19,10 +19,10 @@ import numpy as np
 REGIONS = {
     "tropical_rainforest": {
         "name": "Hutan Hujan Tropis",
-        "base_mean": 0.40,
+        "base_mean": 0.78,
         "amp": 0.10,
         "seed": 101,
-        "fuel_moisture_default": 0.7,
+        "fuel_moisture_default": 0.50,
         "bbox": [113.900, -2.254, 113.954, -2.200],
     },
     "dry_forest": {

@@ -79,7 +79,7 @@ class TestRegionRegistry:
         assert region["id"] == "tropical_rainforest"
         assert region["name"] == "Hutan Hujan Tropis"
         assert region["grid"]["bbox"] == [113.900, -2.254, 113.954, -2.200]
-        assert region["default_params"]["fuel_moisture"] == 0.7
+        assert region["default_params"]["fuel_moisture"] == 0.5
 
     def test_get_region_grassland(self):
         """Grassland region has correct values per SIMULATION_SPEC Section 6."""
@@ -159,13 +159,13 @@ class TestFuelGrids:
 
     def test_fuel_grid_deterministic_values(self):
         """Fuel grids have expected base_mean +- amp ranges (before river/border)."""
-        # Tropical rainforest: base_mean=0.40, amp=0.10 -> range ~[0.30, 0.50]
+        # Tropical rainforest: base_mean=0.78, amp=0.10 -> range ~[0.68, 0.88]
         fuel_tr = load_fuel_grid("tropical_rainforest")
         interior_tr = fuel_tr[1:-1, 1:-1]
         non_zero_tr = interior_tr[interior_tr > 0]
         assert len(non_zero_tr) > 1000, "tropical_rainforest: too few non-zero cells"
-        assert non_zero_tr.min() >= 0.25, "tropical_rainforest: min too low"
-        assert non_zero_tr.max() <= 0.55, "tropical_rainforest: max too high"
+        assert non_zero_tr.min() >= 0.63, "tropical_rainforest: min too low"
+        assert non_zero_tr.max() <= 0.93, "tropical_rainforest: max too high"
 
         # Dry forest: base_mean=0.70, amp=0.10 -> ~[0.60, 0.80]
         fuel_df = load_fuel_grid("dry_forest")
@@ -240,7 +240,7 @@ class TestFuelGridDeterminism:
     def test_generator_deterministic(self):
         """Running generator twice produces identical files (verified via hash)."""
         expected_hashes = {
-            "tropical_rainforest": "c5f59adaaba2da9f94c85828371df4a5",
+            "tropical_rainforest": "f26d5e495a288fe908aa7fb6ce5abcad",
             "dry_forest": "586032db94198b5aea5f7d4ea2402aba",
             "grassland": "fbb08e96faa9b9e80c5f32dc48339692",
         }

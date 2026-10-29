@@ -3,7 +3,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import ValidationError
+from pydantic import ValidationError as PydanticValidationErrorImport
 
 from app.api.schemas import ErrorBody, ErrorDetail, ErrorEnvelope
 
@@ -38,8 +38,8 @@ class AppError(Exception):
         super().__init__(message)
 
 
-class ValidationError(AppError):
-    """Validation error (422)."""
+class PydanticValidationError(AppError):
+    """Pydantic validation error (422)."""
 
     def __init__(
         self,
@@ -55,13 +55,25 @@ class ValidationError(AppError):
 
 
 class UnknownRegionError(AppError):
-    """Unknown region_id (422)."""
+    """Unknown region_id (422 for simulate)."""
 
     def __init__(self, region_id: str) -> None:
         super().__init__(
             code=ErrorCode.UNKNOWN_REGION,
             message=f"Unknown region_id: {region_id}",
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            details={"region_id": region_id},
+        )
+
+
+class RegionNotFoundError(AppError):
+    """Region not found for fuel endpoint (404)."""
+
+    def __init__(self, region_id: str) -> None:
+        super().__init__(
+            code="REGION_NOT_FOUND",
+            message=f"Region not found: {region_id}",
+            status_code=status.HTTP_404_NOT_FOUND,
             details={"region_id": region_id},
         )
 
@@ -157,9 +169,9 @@ def register_exception_handlers(app: FastAPI) -> None:
             details,
         )
 
-    @app.exception_handler(ValidationError)
+    @app.exception_handler(PydanticValidationErrorImport)
     async def pydantic_validation_error_handler(
-        request: Request, exc: ValidationError
+        request: Request, exc: PydanticValidationErrorImport
     ) -> JSONResponse:
         details: list[ErrorDetail] = []
         for err in exc.errors():

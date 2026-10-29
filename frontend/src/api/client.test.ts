@@ -20,7 +20,7 @@ describe("API client", () => {
     } as Response);
     const res = await getRegions();
     expect(res).toEqual(fake);
-    expect(mockFetch).toHaveBeenCalledWith("/api/regions");
+    expect(mockFetch).toHaveBeenCalledWith("/api/regions", expect.objectContaining({ signal: expect.any(AbortSignal) }));
   });
 
   it("parses error envelope on failure", async () => {
