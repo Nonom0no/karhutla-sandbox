@@ -50,7 +50,7 @@ export const theme = {
   groundSegments: 1, // single quad, we use vertex colors or texture later
 
   // Camera
-  cameraPosition: [100, 150, 100] as [number, number, number],
+  cameraPosition: [0, 110, 170] as [number, number, number],
   cameraFov: 60,
   cameraNear: 1,
   cameraFar: 1000,

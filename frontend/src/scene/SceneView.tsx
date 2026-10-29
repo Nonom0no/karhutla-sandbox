@@ -105,16 +105,18 @@ function CameraControls() {
 
   return (
     <OrbitControls
-      enablePan={true}
-      enableZoom={true}
-      enableRotate={true}
-      enableDamping={true}
+      makeDefault
+      enablePan
+      enableZoom
+      enableRotate
+      enableDamping
       dampingFactor={0.05}
+      zoomToCursor
       minDistance={10}
       maxDistance={500}
       minPolarAngle={0.1}
       maxPolarAngle={Math.PI / 2 - 0.05}
-      target={[100, 0, 100]}
+      target={[0, 0, 0]}
     />
   );
 }
