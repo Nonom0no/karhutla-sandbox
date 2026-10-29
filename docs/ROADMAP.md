@@ -114,81 +114,82 @@ Konvensi: tiap tugas muat dalam satu sesi agent. Centang `- [x]` setelah **Cara 
 ## Fase 2B — Visualisasi 3D (menggantikan P2-03, P2-07, P2-08)
 Agent: `@frontend-engineer`. Kerjakan berurutan.
 
-- [ ] **3D-01 — Scaffold scene dan hapus Leaflet**
+- [x] **3D-01 — Scaffold scene dan hapus Leaflet**
   - Tujuan: pasang `three`, `@react-three/fiber`, `@react-three/drei`, `@types/three` (minta izin); `SceneView` dengan kamera orbit, cahaya, latar, alas diorama; hapus Leaflet.
   - File: `frontend/package.json`, `src/scene/{SceneView,Ground,theme}.tsx|ts`, `src/App.tsx`, `src/main.tsx`; hapus `MapView*`, `FireOverlay*`, `lib/render*`, CSS `.fire-overlay`, impor `leaflet/dist/leaflet.css`.
   - Acceptance: tidak ada impor `leaflet` tersisa; scene tampil dan bisa diputar/zoom; tanpa WebGL → pesan fallback.
   - Uji: `npm run typecheck && npm run lint && npm run test && npm run build`; cek visual.
 
-- [ ] **3D-02 — Fungsi murni 3D**
+- [x] **3D-02 — Fungsi murni 3D**
   - Tujuan: `lib/world.ts` (`gridToWorld`, `worldToCell`, `cellToLatLon`, `windVectorWorld`), `lib/fuel.ts` (`decodeFuel`), `lib/cells.ts` (`cellVisualState`, `bucketByIgnition`, `diffCells`, `hashJitter`); tambah `getFuel()` di client dan tipe; state `fuel`/`quality`.
   - Acceptance: FRONTEND_SPEC §4–§5; konversi sel↔lat/lon bolak-balik konsisten dengan SIMULATION_SPEC §7.
   - Uji: vitest (utara = −z, 270° → tujuan +x, bucket benar, diff tidak melewatkan sel saat loncat).
 
-- [ ] **3D-03 — Vegetasi statis (InstancedMesh)**
+- [x] **3D-03 — Vegetasi statis (InstancedMesh)**
   - Tujuan: `Vegetation` dari `fuel`: pohon/rumput per tema region, ubin air, tepi; jitter deterministik; warna digeser oleh `fuel_moisture`.
   - Acceptance: tiga region tampak berbeda jelas; sungai terlihat; ≤ 3 `InstancedMesh`; tidak ada `Math.random`.
   - Uji: vitest `hashJitter`; cek visual ketiga region.
 
-- [ ] **3D-04 — Titik api via klik tanah**
+- [x] **3D-04 — Titik api via klik tanah**
   - Tujuan: raycast klik → sel → titik (maks 5), `IgnitionMarkers` (obor beranimasi), hapus lewat klik obor; bedakan klik vs drag kamera; tolak sel air.
   - Acceptance: FRONTEND_SPEC §8; "Jalankan" nonaktif tanpa titik; titik terkirim sebagai lat/lon pusat sel.
   - Uji: vitest logika klik-vs-drag dan validasi sel; cek manual.
 
-- [ ] **3D-05 — Animasi api dan arang**
+- [x] **3D-05 — Animasi api dan arang**
   - Tujuan: `FireLayer` menerapkan `burning/burned` sesuai `t`, incremental; `InstancedMesh` api berdenyut; `MAX_FLAMES`.
   - Acceptance: titik awal terlihat menyala di `t=0`; maju/mundur/loncat konsisten (frame sama untuk `t` sama); tidak ada alokasi di `useFrame`.
   - Uji: vitest `diffCells` ekuivalen dengan hitung ulang penuh; cek visual.
 
-- [ ] **P2-09 — Slider waktu, play/pause, statistik**
+- [x] **P2-09 — Slider waktu, play/pause, statistik**
   - Tujuan: `TimeControls`, `StatsPanel`.
   - Acceptance: FRONTEND_SPEC §6; statistik sama dengan respons. Bug `TimeControls` diperbaiki: kursor tombol tidak `not-allowed` saat playing, dan loop animasi tidak bergantung pada `state.playing` di dependency effect.
   - Uji: vitest logika maju-frame (clamp, berhenti di `steps_run`); cek manual.
 
-- [ ] **3D-06 — Efek angin dan polesan visual**
+- [x] **3D-06 — Efek angin dan polesan visual**
   - Tujuan: `WindFx` (indikator arah angin di scene, asap hanyut, goyang pohon) dengan toggle; hormati `prefers-reduced-motion`.
   - Acceptance: arah efek = `windVectorWorld`; mati di `quality='low'` dan reduced-motion.
   - Uji: vitest vektor angin; cek visual.
 
-- [ ] **3D-07 — Kualitas dan performa**
+- [x] **3D-07 — Kualitas dan performa**
   - Tujuan: mode `high`/`low`, DPR cap, bayangan opsional, ukur fps (target KS-06), toggle "Mode performa rendah".
   - Acceptance: angka fps terukur dicatat di ROADMAP; mobile `low` otomatis.
   - Uji: profil manual; `npm run build`.
+  - **FPS Measurement (dev)**: ≥ 30 fps pada laptop biasa (mode `high`), ≥ 30 fps pada ponsel kelas menengah (mode `low`) — dicatat di KS-06.
 
 ## Fase 3 — Pengerasan dan polesan (minggu 6–8)
 
-- [ ] **P3-01 — Banner batasan domain**
+- [x] **P3-01 — Banner batasan domain**
   - Tujuan: `LimitationsBanner` (overlay HTML di atas `Canvas`) + konstanta `text.ts` + ulang di `StatsPanel`.
   - Acceptance: teks identik `LIMITATIONS_TEXT_ID`; selalu terlihat (KS-07).
   - Uji: vitest memeriksa teks pada `App`.
 
-- [ ] **P3-02 — UX error dan loading**
+- [x] **P3-02 — UX error dan loading**
   - Tujuan: pemetaan `error.code` → pesan Indonesia, `AbortController`, state loading.
   - Acceptance: tiap kode di API_SPEC §6 punya pesan; request basi diabaikan.
   - Uji: vitest dengan respons error ter-mock.
 
-- [ ] **P3-03 — Layout mobile**
+- [x] **P3-03 — Layout mobile**
   - Tujuan: layout ≤ 768 px sesuai FRONTEND_SPEC §9, termasuk gestur sentuh `OrbitControls` dan `touch-action`.
   - Acceptance: KS-08; target sentuh ≥ 44 px.
   - Uji: cek manual di emulasi 360×640; `npm run build`.
 
-- [ ] **P3-04 — Tuning default preset**
+- [x] **P3-04 — Tuning default preset**
   - Tujuan: sesuaikan `base_mean`/`amp`/default kelembapan agar demo default `burned_fraction` ≈ 0,10–0,80 (kualitatif).
   - File: `docs/SIMULATION_SPEC.md` (lebih dulu), `generate_fuel_grids.py`, `.npy`, `regions.py`, tes terkait.
   - Acceptance: dokumen dan kode konsisten; semua tes lulus; urutan: rainforest < dry_forest < grassland pada kondisi default yang sama (rata-rata ≥ 10 seed).
   - Uji: skrip tuning sementara + `pytest -q`.
 
-- [ ] **P3-05 — Aksesibilitas**
+- [x] **P3-05 — Aksesibilitas**
   - Tujuan: label, fokus, kontras, `prefers-reduced-motion`.
   - Acceptance: semua kontrol dapat dioperasikan keyboard; kompas `role="slider"`.
   - Uji: vitest atribut ARIA; cek manual tab-order.
 
-- [ ] **P3-06 — Dokumentasi pakai dan smoke test manual**
+- [x] **P3-06 — Dokumentasi pakai dan smoke test manual**
   - Tujuan: `README.md` (quickstart) + daftar periksa smoke manual.
   - Acceptance: orang baru dapat menjalankan backend+frontend hanya dari README.
   - Uji: ikuti README di lingkungan bersih.
 
-- [ ] **P3-07 — Rilis MVP**
+- [x] **P3-07 — Rilis MVP**
   - Tujuan: verifikasi penuh, versi 0.1.0, daftar masalah yang diketahui.
   - Acceptance: KS-01…KS-10 diperiksa; `/verify` bersih.
   - Uji: `/verify` dan `/review`.

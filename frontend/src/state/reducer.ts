@@ -22,6 +22,8 @@ export const initialState: AppState = {
   playing: false,
   speed: 1,
   error: null,
+  fuel: null,
+  quality: "high",
 };
 
 export function appReducer(state: AppState, action: Action): AppState {
@@ -65,6 +67,7 @@ export function appReducer(state: AppState, action: Action): AppState {
         playing: false,
         status: "idle",
         error: null,
+        fuel: null, // clear fuel when region changes
       };
     }
 
@@ -135,6 +138,14 @@ export function appReducer(state: AppState, action: Action): AppState {
       };
     }
 
+    case "SET_FUEL": {
+      return { ...state, fuel: action.payload };
+    }
+
+    case "SET_QUALITY": {
+      return { ...state, quality: action.payload };
+    }
+
     case "SET_T": {
       return {
         ...state,
@@ -179,6 +190,8 @@ export function appReducer(state: AppState, action: Action): AppState {
         playing: false,
         status: "idle",
         error: null,
+        fuel: null,
+        quality: "high",
       };
     }
 

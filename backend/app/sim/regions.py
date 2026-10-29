@@ -15,7 +15,7 @@ _REGION_DATA = {
     "tropical_rainforest": {
         "id": "tropical_rainforest",
         "name": "Hutan Hujan Tropis",
-        "description": "Vegetasi hutan hujan dengan fuel rendah dan kelembapan tinggi.",
+        "description": "Vegetasi hutan hujan dengan fuel sedang dan kelembapan sedang.",
         "grid": {
             "height": 200,
             "width": 200,
@@ -26,7 +26,7 @@ _REGION_DATA = {
             "fire_intensity": 60,
             "wind_speed": 5.0,
             "wind_from_deg": 270.0,
-            "fuel_moisture": 0.7,
+            "fuel_moisture": 0.50,
             "steps": 200,
         },
     },

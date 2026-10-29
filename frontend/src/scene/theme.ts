@@ -59,4 +59,6 @@ export const theme = {
   maxFlames: 5000,
   maxTrees: 50000,
   maxGrass: 100000,
-};
+} as const;
+
+export type RegionId = keyof typeof theme.treeColors;

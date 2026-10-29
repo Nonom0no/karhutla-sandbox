@@ -1,5 +1,8 @@
 """Integration tests for API endpoints."""
 
+import base64
+
+import numpy as np
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -298,9 +301,6 @@ def test_get_region_fuel_values_valid() -> None:
     response = client.get("/api/regions/dry_forest/fuel")
     assert response.status_code == 200
     data = response.json()
-
-    import base64
-    import numpy as np
 
     decoded = base64.b64decode(data["data"])
     arr = np.frombuffer(decoded, dtype=np.uint8).reshape(200, 200)

@@ -19,3 +19,59 @@ body {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
+
+/* Loading spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accessibility: Focus visible styles for keyboard navigation */
+:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* Ensure focus is visible on interactive elements */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="slider"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* High contrast for range inputs (sliders) in forced colors mode */
+@media (forced-colors: active) {
+  input[type="range"] {
+    forced-color-adjust: none;
+  }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ensure minimum touch target sizes on mobile */
+@media (pointer: coarse) {
+  button,
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  [role="slider"],
+  [tabindex="0"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

@@ -66,6 +66,8 @@ const initialStateWithRegions = {
   playing: false,
   speed: 1 as const,
   error: null,
+  fuel: null,
+  quality: "high" as const,
 };
 
 describe("ControlPanel component", () => {

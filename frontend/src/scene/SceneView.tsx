@@ -5,6 +5,12 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Html, Environment } from '@react-three/drei';
 import { theme } from './theme';
 import { Ground } from './Ground';
+import { Vegetation } from './Vegetation';
+import { IgnitionMarkers } from './IgnitionMarkers';
+import { FireLayer } from './FireLayer';
+import { WindFx } from './WindFx';
+import { useAppState } from '../state/context';
+import { useMemo } from 'react';
 
 // Fallback component when WebGL is not available
 function WebGLFallback() {
@@ -41,7 +47,9 @@ function WebGLFallback() {
 }
 
 // Inner scene content (lights, ground, etc.)
-function SceneContent({ regionId }: { regionId: string }) {
+function SceneContent() {
+  const { regionId, fuel, ignitionPoints, result } = useAppState();
+
   return (
     <>
       {/* Ambient light */}
@@ -71,7 +79,19 @@ function SceneContent({ regionId }: { regionId: string }) {
       <Environment preset="dawn" background={false} />
 
       {/* Ground plane */}
-      <Ground regionId={regionId} />
+      <Ground regionId={regionId} fuelGrid={fuel} />
+
+      {/* Vegetation layer (trees, grass, water, edges) */}
+      {fuel && <Vegetation />}
+
+      {/* Fire layer (flames + burning/burned vegetation updates) */}
+      {fuel && result && <FireLayer />}
+
+      {/* Wind visual effects (arrow, drifting smoke, tree sway) */}
+      {fuel && <WindFx />}
+
+      {/* Ignition markers (torches) */}
+      {ignitionPoints.length > 0 && <IgnitionMarkers />}
 
       {/* Coordinate axes helper (for debugging) */}
       {/* <axesHelper args={[50]} /> */}
@@ -111,23 +131,35 @@ interface SceneViewProps {
  * Shows fallback message if WebGL is not available.
  */
 export function SceneView({ regionId = 'dry_forest', className = '', style }: SceneViewProps) {
+  const { quality } = useAppState();
+
+  // Quality-based canvas settings
+  const canvasProps = useMemo(() => {
+    const isLow = quality === 'low';
+    return {
+      shadows: !isLow, // no shadows in low quality
+      dpr: isLow ? Math.min(window.devicePixelRatio, 1.5) : undefined, // cap DPR at 1.5 in low quality
+      camera: {
+        position: theme.cameraPosition,
+        fov: theme.cameraFov,
+        near: theme.cameraNear,
+        far: theme.cameraFar,
+      },
+      gl: { antialias: !isLow, alpha: false }, // disable antialias in low quality
+      onCreated: ({ gl }: { gl: import('three').WebGLRenderer }) => {
+        gl.setClearColor(theme.backgroundColor, 1);
+      },
+    };
+  }, [quality]);
+
   return (
     <div className={className} style={{ width: '100%', height: '100%', minHeight: '400px', ...style }}>
       <Canvas
-        camera={{
-          position: theme.cameraPosition,
-          fov: theme.cameraFov,
-          near: theme.cameraNear,
-          far: theme.cameraFar,
-        }}
-        shadows
-        gl={{ antialias: true, alpha: false }}
-        onCreated={({ gl }) => {
-          gl.setClearColor(theme.backgroundColor, 1);
-        }}
+        {...canvasProps}
+        style={{ touchAction: 'none', width: '100%', height: '100%' }}
         fallback={<WebGLFallback />}
       >
-        <SceneContent regionId={regionId} />
+        <SceneContent />
         <CameraControls />
         <Html
           as="div"
